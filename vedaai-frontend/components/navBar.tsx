@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Navbar() {
     return (
-      <div className="mt-[3vh] rounded-2xl h-16 bg-white shadow-[0px_32px_48px_0px_rgba(0,0,0,0.2),0px_16px_48px_0px_rgba(0,0,0,0.12)] flex items-center justify-between px-4">
+      <div className="mt-[3vh] mx-2 md:ml-0 md:mr-4 rounded-2xl h-16 bg-white shadow-[0px_16px_16px_0px_rgba(0,0,0,0.2),0px_16px_16px_0px_rgba(0,0,0,0.12)] flex items-center justify-between px-4">
         
         {/* For Mobile Only */}
         <div className="flex items-center gap-2 md:hidden">
