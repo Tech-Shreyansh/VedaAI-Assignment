@@ -1,5 +1,6 @@
 // @ts-nocheck
 import Assignment from "../models/assignment.model";
+import { generateQuestions } from "../services/ai.service";
 
 export const createAssignment = async (req, res) => {
   try {
@@ -57,15 +58,55 @@ export const createAssignment = async (req, res) => {
       user: userId,
       prompt_sent: prompt,
       status: "pending",
-      response_from_llm : {},
     });
 
+    // 🤖 CALL AI
+    const aiResponse = await generateQuestions(prompt);
+
+    let parsed;
+
+    try {
+      parsed = JSON.parse(aiResponse);
+    } catch {
+      parsed = { raw: aiResponse }; // fallback
+    }
+
+    // 💾 update assignment
+    assignment.response_from_llm = parsed;
+    assignment.status = "completed";
+
+    await assignment.save();
+
     return res.status(201).json({
-      message: "Assignment created successfully",
+      message: "Assignment generated",
       assignmentId: assignment._id,
+      response_from_llm: parsed
     });
   } catch (err) {
     console.error(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getAssignments = async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    let filter = {};
+
+    if (userId) {
+      filter.user = userId;
+    }
+
+    const assignments = await Assignment.find(filter)
+      .select("topic dueDate createdAt _id")
+      .sort({ createdAt: -1 });
+
+    return res.json({
+      count: assignments.length,
+      assignments,
+    });
+  } catch (err) {
     return res.status(500).json({ message: "Server error" });
   }
 };

@@ -1,12 +1,13 @@
 'use client'
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Sidebar() {
 
     const [active, setActive] = useState("assignments");
-
+    const router = useRouter()
     const menuItems = [
         { key: "home", label: "Home", icon: "/homeIcon.svg" },
         { key: "groups", label: "My Groups", icon: "/myGroupsIcon.svg" },
@@ -26,7 +27,7 @@ export default function Sidebar() {
                 </div>
 
                 <div className="p-[4px] rounded-full bg-gradient-to-b from-[#FF7950] to-[#C0350A] mb-6">
-                    <button className="w-full bg-[#303030] text-white py-2 rounded-full">
+                    <button onClick={()=>router.push("/assignments/create")} className="w-full bg-[#303030] text-white py-2 rounded-full">
                         + Create Assignment
                     </button>
                 </div>

@@ -3,8 +3,14 @@
 import { useState } from "react";
 import Image from "next/image";
 
+type Assignment = {
+    _id: string;
+    topic: string;
+    dueDate: string;
+    createdAt: string;
+  };
 interface Props {
-    assignments: Object[]
+    assignments: Assignment[]
 }
 const AssignmentListing = (props: Props) => {
     const [visible, setVisible] = useState<boolean[]>(
@@ -38,20 +44,57 @@ const AssignmentListing = (props: Props) => {
             </div>
         </div>
         <div className="md:grid grid-cols-2 gap-4 space-y-4 md:space-y-0">
-            {props.assignments.map((assignment, index) => <div key={index} className="relative w-full bg-white rounded-xl p-4">
-                <div className="flex justify-between mb-8">
-                    <span className="text-2xl font-extrabold text-black">Quiz on Electricity</span>
-                    <Image onClick={() => toggleMenu(index)} className="cursor-pointer" src={"/dotsVertical.svg"} width={20} height={20} alt="list" />
+            {props.assignments.map((assignment, index) => (
+                <div
+                    key={assignment._id}
+                    className="relative w-full bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition"
+                >
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-6">
+                        <span className="text-lg md:text-xl font-bold text-[#303030]">
+                            {assignment.topic}
+                        </span>
+
+                        <Image
+                            onClick={() => toggleMenu(index)}
+                            className="cursor-pointer"
+                            src={"/dotsVertical.svg"}
+                            width={20}
+                            height={20}
+                            alt="menu"
+                        />
+                    </div>
+
+                    {/* Dates */}
+                    <div className="flex justify-between text-sm md:text-base font-medium text-black">
+                        <p>
+                            Assigned on:{" "}
+                            <span className="text-gray-400">
+                                {assignment.createdAt?.slice(0, 10)}
+                            </span>
+                        </p>
+
+                        <p>
+                            Due:{" "}
+                            <span className="text-gray-400">
+                                {assignment.dueDate}
+                            </span>
+                        </p>
+                    </div>
+
+                    {/* Dropdown */}
+                    {visible[index] && (
+                        <div className="absolute top-10 right-4 bg-white shadow-lg p-3 rounded-lg w-40 text-sm z-10">
+                            <p className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded">
+                                View Assignment
+                            </p>
+                            <p className="cursor-pointer hover:bg-red-50 text-red-500 px-2 py-1 rounded">
+                                Delete
+                            </p>
+                        </div>
+                    )}
                 </div>
-                <div className="flex justify-between text-black font-bold">
-                    <p>Assigned on : <span className="text-gray-400">20-06-2025</span></p>
-                    <p>Due : <span className="text-gray-400">21-06-2025</span></p>
-                </div>
-                {visible[index] && <div className="absolute top-4 right-16 bg-white drop-shadow-md p-2 rounded-lg w-[30%] text-xs md:text-sm">
-                    <p>View Assignment</p>
-                    <p className="text-red-500">Delete</p>
-                </div>}
-            </div>)}
+            ))}
         </div>
     </div>
 
