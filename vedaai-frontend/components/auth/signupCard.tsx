@@ -3,6 +3,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
+import api from "@/lib/axios";
 
 interface Props {
     setIsOtpSent : Dispatch<SetStateAction<boolean>>;
@@ -22,20 +23,21 @@ const SignupPageCard = (props : Props) => {
     if (password !== confirm) {
       return alert("Passwords do not match");
     }
-
+    var res;
     try {
       setLoading(true);
 
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/signup-init`,
-        { email, password }
+      res = await api.post(
+        "/auth/send-otp",
+        { email, type:"signup" }
       );
-
+      
       localStorage.setItem("email", email);
+      localStorage.setItem("password", password);
       localStorage.setItem("flow", "signup");
       props.setIsOtpSent(true)
     } catch {
-      alert("Signup failed");
+      alert(res?.data.message);
     } finally {
       setLoading(false);
     }

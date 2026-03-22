@@ -3,6 +3,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import User from "../models/user.model";
+import { sendOtpEmail } from "../services/email.service";
 
 // 🔢 Generate OTP
 const generateOtp = () => {
@@ -12,26 +13,39 @@ const generateOtp = () => {
 // ✅ SEND OTP
 export const sendOtp = async (req: Request, res: Response) => {
   try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(422).json({ message: "Email required" });
+    const { email, type } = req.body;
+  
+    const emailNormalized = email.toLowerCase().trim();
+  
+    let user = await User.findOne({ email: emailNormalized });
+  
+    // 🟢 SIGNUP FLOW
+    if (type === "signup") {
+      if (user && user.isVerified && user.password) {
+        return res.status(400).json({ message: "User already exists" });
+      }
     }
-
-    let user = await User.findOne({ email });
-
-    if (!user) {
-      user = await User.create({ email });
+  
+    // 🔵 RESET FLOW
+    if (type === "reset") {
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
     }
+  
+    if(!user) 
+      user = await User.create({ email: emailNormalized });
 
+    // 🔥 COMMON OTP LOGIC
     const otp = generateOtp();
-
+  
     user.Otp = otp;
     await user.save();
-
-    console.log("OTP:", otp); // 👈 for testing (IMPORTANT)
+  
+    // await sendOtpEmail(emailNormalized, otp);
 
     return res.json({ message: "OTP sent" });
+  
   } catch (err) {
     return res.status(500).json({ message: "Server error" });
   }
@@ -43,8 +57,10 @@ export const verifyOtp = async (req: Request, res: Response) => {
     const { email, otp } = req.body;
 
     const user = await User.findOne({ email });
-
-    if (!user || user.Otp !== otp) {
+    
+    if (!user || user.Otp != otp) {
+      if(!user) return res.status(422).json({ message: "No Such User Exists" });
+      console.log(user.Otp, otp)
       return res.status(422).json({ message: "Invalid OTP" });
     }
 

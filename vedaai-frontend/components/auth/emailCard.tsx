@@ -3,6 +3,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
+import api from "@/lib/axios";
 
 interface Props {
   setIsResetActive: Dispatch<SetStateAction<boolean>>;
@@ -19,9 +20,9 @@ const ResetEmailCard = (props : Props) => {
     try {
       setLoading(true);
 
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/reset-password/send-otp`,
-        { email }
+      await api.post(
+        `/auth/send-otp`,
+        { email, type : "reset" }
       );
 
       localStorage.setItem("resetEmail", email);

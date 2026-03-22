@@ -1,16 +1,19 @@
 "use client";
 
 import { useState, useRef } from "react";
-import axios from "axios";
 import Image from "next/image";
+import api from "@/lib/axios";
+import { useRouter } from "next/navigation";
 
 const OtpCard = () => {
   const [otp, setOtp] = useState(Array(6).fill(""));
   const [loading, setLoading] = useState(false);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
-
+  const router = useRouter()
   const email =
     typeof window !== "undefined" ? localStorage.getItem("email") : "";
+  const password =
+    typeof window !== "undefined" ? localStorage.getItem("password") : "";
 
   // Handle input change
   const handleChange = (value: string, index: number) => {
@@ -61,24 +64,24 @@ const OtpCard = () => {
       setLoading(true);
   
       // Step 1: Verify OTP
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`, {
+      await api.post(`/auth/verify-otp`, {
         email,
         otp: finalOtp,
       });
   
       // Step 2: Conditional Flow
       if (flow === "signup") {
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-account`,
-          { email }
+        await api.post(
+          `/auth/signup`,
+          { email, password }
         );
   
         alert("Account verified!");
-        window.location.href = "/";
+        router.push("/assignments")
       }
   
       if (flow === "reset") {
-        window.location.href = "/auth/reset-password/set-password";
+        router.push("/login/reset");
       }
   
     } catch {

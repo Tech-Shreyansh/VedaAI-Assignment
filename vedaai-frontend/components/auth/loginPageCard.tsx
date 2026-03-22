@@ -3,6 +3,8 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
+import api from "@/lib/axios";
+import { useRouter } from "next/navigation";
 
 
 interface Props {
@@ -14,22 +16,28 @@ const LoginPageCard = (props : Props) => {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const router = useRouter()
     const handleLogin = async () => {
         if (!email || !password) {
             return alert("Email and password are required");
         }
-
         try {
             setLoading(true);
 
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+            const res = await api.post("/auth/login", {
                 email,
                 password,
             });
 
-            window.location.href = "/";
-        } catch {
-            alert("Invalid credentials");
+            if(res.status == 200){
+                router.push("/assignments")
+            }
+            else{
+                alert(res.data.message)
+            }
+            
+        } catch (err: any) {
+            alert(err?.response?.data?.message || "Login failed");
         } finally {
             setLoading(false);
         }
@@ -111,7 +119,7 @@ const LoginPageCard = (props : Props) => {
             New to VedaAI?{" "}
             <span
                 className="text-indigo-600 font-medium cursor-pointer hover:underline"
-                onClick={() => (window.location.href = "/auth/email")}
+                onClick={() => (window.location.href = "/auth/signup")}
             >
                 Create an account
             </span>
