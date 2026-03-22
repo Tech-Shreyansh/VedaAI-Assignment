@@ -23,7 +23,7 @@ const AssignmentListing = (props: Props) => {
                 <div className="w-4 h-4 rounded-full bg-green-500" />
             </div>
             <div>
-                <h3 className="font-bold text-2xl text-left">Assignments</h3>
+                <h3 className="font-bold text-xl text-left">Assignments</h3>
                 <p className="text-sm text-gray-500">Manage and create assignments for your classes.</p>
             </div>
         </div>

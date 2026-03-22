@@ -1,6 +1,9 @@
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function EmptyState() {
+
+  const router = useRouter()
     return (
       <div className="text-center max-w-md mx-auto mt-8 md:mt-24">
         
@@ -22,7 +25,7 @@ export default function EmptyState() {
         </p>
   
         {/* CTA */}
-        <button className="bg-[#303030] cursor-pointer text-white px-6 py-3 rounded-full">
+        <button onClick={()=>router.push("/assignments/create")} className="bg-[#303030] cursor-pointer text-white px-6 py-3 rounded-full">
           + Create Your First Assignment
         </button>
       </div>
