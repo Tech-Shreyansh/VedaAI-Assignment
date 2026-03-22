@@ -71,13 +71,14 @@ const OtpCard = () => {
   
       // Step 2: Conditional Flow
       if (flow === "signup") {
-        await api.post(
+        const res = await api.post(
           `/auth/signup`,
           { email, password }
         );
   
         alert("Account verified!");
         router.push("/assignments")
+        localStorage.setItem("userId",res.data.userId)
       }
   
       if (flow === "reset") {

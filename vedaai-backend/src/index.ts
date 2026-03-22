@@ -7,6 +7,7 @@ import http from "http";
 import { Server } from "socket.io";
 import { connectDB } from "./config/db";
 import authRoutes from "./routes/auth.routes";
+import assignmentRoutes from "./routes/assignment.routes";
 
 connectDB();
 const app = express();
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/assignments", assignmentRoutes);
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

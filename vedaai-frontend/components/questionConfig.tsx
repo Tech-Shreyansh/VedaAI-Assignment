@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 const QUESTION_TYPES = [
   "Multiple Choice Questions",
@@ -10,10 +10,24 @@ const QUESTION_TYPES = [
   "Numerical Problems",
 ];
 
-export default function QuestionConfig() {
-  const [questions, setQuestions] = useState([
+type Question = {
+  type: string;
+  count: number;
+  marks: number;
+};
+
+interface Props {
+  setQuestionConfig: Dispatch<SetStateAction<Question[]>>;
+};
+
+export default function QuestionConfig(props: Props) {
+  const [questions, setQuestions] = useState<Question[]>([
     { type: QUESTION_TYPES[0], count: 1, marks: 1 },
   ]);
+
+  useEffect(() => {
+    props.setQuestionConfig(questions);
+  }, [questions]);
 
   const handleAdd = () => {
     setQuestions((prev) => [

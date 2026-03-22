@@ -31,6 +31,7 @@ const LoginPageCard = (props : Props) => {
 
             if(res.status == 200){
                 router.push("/assignments")
+                localStorage.setItem("userId",res.data.userId)
             }
             else{
                 alert(res.data.message)
