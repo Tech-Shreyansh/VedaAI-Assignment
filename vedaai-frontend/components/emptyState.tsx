@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function EmptyState() {
     return (
-      <div className="text-center max-w-md">
+      <div className="text-center max-w-md mx-auto mt-8 md:mt-24">
         
         {/* Illustration */}
         <div className="mb-6">
