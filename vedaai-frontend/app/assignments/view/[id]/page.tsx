@@ -137,6 +137,19 @@ export default function AssignmentDetailPage() {
         0
     );
 
+    /* ================= Regenrate Paper ================= */
+    const regenerate = async () => {
+        setLoading(true)
+        try {
+            const res = await api.patch(`/assignments/${id}`);
+            setAssignment(res.data.assignmentNew);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     /* ================= UI ================= */
 
     return (
@@ -184,7 +197,7 @@ export default function AssignmentDetailPage() {
 
                     <div className="flex justify-center gap-6 mt-3 text-sm text-gray-600 flex-wrap">
                         <span><b>Standard:</b> {assignment.standard}</span>
-                        <span><b>Duration:</b> {assignment.duration || "1 Hour"}</span>
+                        <span><b>Duration:</b> {assignment.duration + " Hour(s)" || "1 Hour"}</span>
                         <span><b>Total Marks:</b> {totalMarks}</span>
                     </div>
                 </div>
@@ -282,6 +295,13 @@ export default function AssignmentDetailPage() {
                     className="cursor-pointer px-4 py-2 border border-gray-300 rounded-full text-sm"
                 >
                     {showAnswers ? "Hide Answers" : "Show Answers"}
+                </button>
+
+                <button
+                    onClick={regenerate}
+                    className="cursor-pointer px-4 py-2 bg-black text-white rounded-full text-sm"
+                >
+                    Regenerate
                 </button>
             </div>
         </div>

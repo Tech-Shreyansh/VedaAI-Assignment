@@ -17,7 +17,7 @@ export const createAssignment = async (req, res) => {
 
     console.log(typeof question_config)
     // ✅ Basic validation
-    if (!topic || !standard || !question_config?.length || duration) {
+    if (!topic || !standard || !question_config?.length || !duration) {
       return res.status(422).json({
         message: "Topic, standard, duration and question config are required",
       });
@@ -118,7 +118,8 @@ export const getAssignmentById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const assignment = await Assignment.findById(id);
+    const assignment = await Assignment.findById(id)
+    .select("_id topic standard dueDate duration question_config response_from_llm");
 
     if (!assignment) {
       return res.status(404).json({ message: "Assignment not found" });
@@ -126,6 +127,80 @@ export const getAssignmentById = async (req, res) => {
 
     return res.json({ assignment });
   } catch (err) {
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const regenerateAssignment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const assignment = await Assignment.findById(id);
+
+    if (!assignment) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+
+    const {
+      topic,
+      standard,
+      question_config,
+      additional_info,
+    } = assignment;
+
+    // 🔥 calculate totals
+    const totalQuestions = question_config.reduce(
+      (sum, q) => sum + q.count,
+      0
+    );
+
+    const totalMarks = question_config.reduce(
+      (sum, q) => sum + q.count * q.marks,
+      0
+    );
+
+    // 🧠 prompt
+    const prompt = `You are an exam paper generator. Create a structured question paper based on Topic: ${topic} for Standard: ${standard}. Total Questions: ${totalQuestions}. Total Marks: ${totalMarks} Question Configuration: ${question_config
+      .map(
+        (q) =>
+          `${q.type}: ${q.count} questions, ${q.marks} marks each`
+      )
+      .join("\n")}. Additional Instructions are ${
+      additional_info || "None"
+    }. Output guidelines are : 
+      - Divide into sections (Section A, B, etc.)
+      - Include question text
+      - Include difficulty (easy/medium/hard)
+      - Include marks
+      Return structured JSON only where it has key as sections which contain array as of objects as value. Each array element should have keys - section_name, is_mcq, questions. Now questions is also an array of elements where each element has keys - question, answer, difficulty-[easy/medium/hard], marks, options(in case of mcq and there should be exactly 4 options). Return this exact JSON format only as plain text. DO NOT wrap inside code block or markdown.`;
+
+    // 🤖 AI call
+    const aiResponse = await generateQuestions(prompt);
+
+    let parsed;
+
+    try {
+      parsed = JSON.parse(aiResponse);
+    } catch {
+      parsed = { raw: aiResponse };
+    }
+
+    // 💾 update
+    assignment.response_from_llm = parsed;
+    assignment.prompt_sent = prompt;
+
+    await assignment.save();
+
+    const assignmentUpdated = await Assignment.findById(id)
+    .select("_id topic standard dueDate duration question_config response_from_llm");
+
+    return res.status(200).json({
+      message: "Assignment regenerated",
+      assignmentId: assignment._id,
+      assignmentNew : assignmentUpdated,
+    });
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({ message: "Server error" });
   }
 };

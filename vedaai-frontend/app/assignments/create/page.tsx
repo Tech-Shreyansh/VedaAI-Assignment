@@ -5,6 +5,7 @@ import QuestionConfig from "@/components/questionConfig";
 import { useState } from "react";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
+import { Toaster, toast } from "react-hot-toast";
 
 type Question = {
     type: string;
@@ -23,11 +24,62 @@ export default function CreateAssignmentPage() {
     const [loading, setLoading] = useState(false);
     const [duration, setDuration] = useState<number>(0)
 
+    const validateForm = () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const selectedDate = new Date(dueDate);
+
+        const oneYearLater = new Date();
+        oneYearLater.setFullYear(today.getFullYear() + 1);
+
+        // 1. Due date validation
+        if (!dueDate) return "Due date is required";
+        if (selectedDate < today) return "Due date cannot be in the past";
+        if (selectedDate > oneYearLater) return "Due date cannot be more than 1 year ahead";
+
+        // 2. Topic length
+        if (!topic.trim()) return "Topic is required";
+        if (topic.length > 50) return "Topic must be within 50 characters";
+
+        // 3. Duration
+        if (!duration || duration < 1 || duration > 5) {
+            return "Duration must be between 1 to 5 hours";
+        }
+
+        // 4. Question config validation
+        if (!questionConfig.length) return "Add at least one question type";
+
+        let totalMarks = 0;
+
+        for (let q of questionConfig) {
+            if (q.count > 10) {
+                return `Max 10 questions allowed for ${q.type}`;
+            }
+
+            totalMarks += q.count * q.marks;
+        }
+
+        // 5. Total marks
+        if (totalMarks > 300) {
+            return "Total marks cannot exceed 300";
+        }
+
+        return null; // all good
+    };
+
     const handleSubmit = async () => {
+        const error = validateForm();
+
+        if (error) {
+            toast.error(error)
+            return;
+        }
+
         try {
             setLoading(true);
 
-            const userId = localStorage.getItem("userId"); 
+            const userId = localStorage.getItem("userId");
 
             const payload = {
                 topic,
@@ -41,11 +93,11 @@ export default function CreateAssignmentPage() {
 
             const res = await api.post("/assignments/create", payload);
 
-            alert("Assignment created!");
-            router.push(`/assignments/view/${res.data._id}`);
+            toast.success("Assignment created!");
+            router.push(`/assignments/view/${res.data.assignmentId}`);
 
         } catch (err: any) {
-            alert(err?.response?.data?.message || "Failed to create assignment");
+            toast.error(err?.response?.data?.message || "Failed to create assignment");
         } finally {
             setLoading(false);
         }
@@ -116,7 +168,7 @@ export default function CreateAssignmentPage() {
                     rows={4}
                     value={additionalInfo}
                     onChange={(e) => setAdditionalInfo(e.target.value)}
-                    placeholder="Additional instructions"
+                    placeholder="Any Information? Example : Keep the questions moderate."
                     className="w-full border rounded-xl p-2"
                 />
 
@@ -132,6 +184,7 @@ export default function CreateAssignmentPage() {
                     {loading ? "Generating..." : "⚡ Generate"}
                 </button>
             </div>
+            <Toaster position="top-center" />
         </div>
     );
 }
