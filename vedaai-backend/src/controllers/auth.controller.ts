@@ -42,7 +42,7 @@ export const sendOtp = async (req: Request, res: Response) => {
     user.Otp = otp;
     await user.save();
   
-    // await sendOtpEmail(emailNormalized, otp);
+    await sendOtpEmail(emailNormalized, otp);
 
     return res.json({ message: "OTP sent" });
   
