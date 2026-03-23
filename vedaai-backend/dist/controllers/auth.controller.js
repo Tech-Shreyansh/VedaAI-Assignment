@@ -65,8 +65,10 @@ exports.sendOtp = sendOtp;
 const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, otp } = req.body;
-        const user = yield user_model_1.default.findOne({ email });
+        const emailNormalized = email.toLowerCase().trim();
+        const user = yield user_model_1.default.findOne({ email: emailNormalized });
         if (!user || user.Otp != otp) {
+            console.log(emailNormalized);
             if (!user)
                 return res.status(422).json({ message: "No Such User Exists" });
             console.log(user.Otp, otp);
@@ -86,7 +88,8 @@ exports.verifyOtp = verifyOtp;
 const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
-        const user = yield user_model_1.default.findOne({ email });
+        const emailNormalized = email.toLowerCase().trim();
+        const user = yield user_model_1.default.findOne({ email: emailNormalized });
         if (!user || !user.isVerified) {
             return res.status(403).json({ message: "Verify OTP first" });
         }
@@ -104,7 +107,8 @@ exports.signup = signup;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
-        const user = yield user_model_1.default.findOne({ email });
+        const emailNormalized = email.toLowerCase().trim();
+        const user = yield user_model_1.default.findOne({ email: emailNormalized });
         if (!user || !user.password) {
             return res.status(404).json({ message: "User not found" });
         }
