@@ -3,7 +3,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import User from "../models/user.model";
-import { sendOtpEmail } from "../services/email.service";
+// import { sendOtpEmail } from "../services/email.service";
 
 // 🔢 Generate OTP
 const generateOtp = () => {
@@ -42,9 +42,9 @@ export const sendOtp = async (req: Request, res: Response) => {
     user.Otp = otp;
     await user.save();
   
-    await sendOtpEmail(emailNormalized, otp);
+    // await sendOtpEmail(emailNormalized, otp);
 
-    return res.json({ message: "OTP sent" });
+    return res.json({ otp: otp, message: "OTP sent" });
   
   } catch (err: any) {
     console.error("===== ERROR START =====");
@@ -64,10 +64,11 @@ export const sendOtp = async (req: Request, res: Response) => {
 export const verifyOtp = async (req: Request, res: Response) => {
   try {
     const { email, otp } = req.body;
-
-    const user = await User.findOne({ email });
+    const emailNormalized = email.toLowerCase().trim();
+    const user = await User.findOne({ email : emailNormalized });
     
     if (!user || user.Otp != otp) {
+      console.log(emailNormalized)
       if(!user) return res.status(422).json({ message: "No Such User Exists" });
       console.log(user.Otp, otp)
       return res.status(422).json({ message: "Invalid OTP" });
@@ -88,8 +89,8 @@ export const verifyOtp = async (req: Request, res: Response) => {
 export const signup = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
+    const emailNormalized = email.toLowerCase().trim();
+    const user = await User.findOne({ email : emailNormalized });
 
     if (!user || !user.isVerified) {
       return res.status(403).json({ message: "Verify OTP first" });
@@ -110,8 +111,8 @@ export const signup = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
+    const emailNormalized = email.toLowerCase().trim();
+    const user = await User.findOne({ email : emailNormalized });
 
     if (!user || !user.password) {
       return res.status(404).json({ message: "User not found" });

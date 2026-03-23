@@ -16,17 +16,26 @@ const SignupPageCard = (props : Props) => {
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
+
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
     if (!email || !password || !confirm) {
       return alert("All fields are required");
     }
 
+    if(!emailPattern.test(email)){
+      return alert("Enter Valid Email");
+    }
+    if(password.length<6){
+      return alert("Password should be atleast 6 characters long");
+    }
     if (password !== confirm) {
       return alert("Passwords do not match");
     }
     try {
       setLoading(true);
 
-      await api.post(
+      const res = await api.post(
         "/auth/send-otp",
         { email, type:"signup" }
       );
@@ -34,6 +43,7 @@ const SignupPageCard = (props : Props) => {
       localStorage.setItem("email", email);
       localStorage.setItem("password", password);
       localStorage.setItem("flow", "signup");
+      localStorage.setItem("otp", res.data.otp);
       props.setIsOtpSent(true)
     } catch (err: any) {
       toast.error(err?.response?.data?.message);

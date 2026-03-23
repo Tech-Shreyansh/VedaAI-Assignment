@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
 
 const OtpCard = () => {
   const [otp, setOtp] = useState(Array(6).fill(""));
+  const [otpReceived, setOtpReceived] = useState("")
   const [loading, setLoading] = useState(false);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter()
@@ -28,6 +29,10 @@ const OtpCard = () => {
       inputsRef.current[index + 1]?.focus();
     }
   };
+
+  useEffect(()=>{
+    setOtpReceived(localStorage.getItem("otp") || "123456")
+  },[])
 
   // Handle backspace
   const handleKeyDown = (e: any, index: number) => {
@@ -53,38 +58,38 @@ const OtpCard = () => {
 
   const handleVerify = async () => {
     const finalOtp = otp.join("");
-  
+
     if (finalOtp.length !== 6) {
       return alert("Enter valid OTP");
     }
-  
+
     const flow = localStorage.getItem("flow"); // "signup" | "reset"
-  
+
     try {
       setLoading(true);
-  
+
       // Step 1: Verify OTP
       await api.post(`/auth/verify-otp`, {
         email,
         otp: finalOtp,
       });
-  
+
       // Step 2: Conditional Flow
       if (flow === "signup") {
         const res = await api.post(
           `/auth/signup`,
           { email, password }
         );
-  
+
         alert("Account verified!");
         router.push("/assignments")
-        localStorage.setItem("userId",res.data.userId)
+        localStorage.setItem("userId", res.data.userId)
       }
-  
+
       if (flow === "reset") {
         router.push("/login/reset");
       }
-  
+
     } catch {
       alert("Invalid OTP");
     } finally {
@@ -94,7 +99,7 @@ const OtpCard = () => {
 
   return (
     <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-lg border border-gray-100">
-      
+
       {/* Branding */}
       <div className="mb-6 text-center">
         <div className="flex mx-auto justify-center items-center gap-2">
@@ -133,18 +138,26 @@ const OtpCard = () => {
         onClick={handleVerify}
         disabled={loading}
         className="w-full cursor-pointer bg-[#303030] text-white py-3 rounded-xl 
-        font-medium hover:opacity-90 transition disabled:opacity-50"
+        font-medium hover:opacity-90 transition disabled:opacity-50 mb-4"
       >
         {loading ? "Verifying..." : "Verify OTP"}
       </button>
 
+      <p className="text-green-600 text-sm text-center mb-4">
+        Demo OTP: {otpReceived}
+      </p>
+
+      <p className="text-xs">
+        Note: Email-based OTP is disabled on the deployed version due to SMTP restrictions on Render’s free tier. The feature is fully functional in local setup and can be demonstrated. For evaluation, OTP is surfaced on UI to complete the flow.
+      </p>
+
       {/* Resend */}
-      <p className="text-sm text-center text-gray-500 mt-4">
+      {/* <p className="text-sm text-center text-gray-500 mt-4">
         Didn’t receive code?{" "}
         <span className="text-indigo-600 cursor-pointer hover:underline">
           Resend
         </span>
-      </p>
+      </p> */}
     </div>
   );
 };

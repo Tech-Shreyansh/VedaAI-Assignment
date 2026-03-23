@@ -16,7 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.login = exports.signup = exports.verifyOtp = exports.sendOtp = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const user_model_1 = __importDefault(require("../models/user.model"));
-const email_service_1 = require("../services/email.service");
+// import { sendOtpEmail } from "../services/email.service";
 // 🔢 Generate OTP
 const generateOtp = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -45,8 +45,8 @@ const sendOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const otp = generateOtp();
         user.Otp = otp;
         yield user.save();
-        yield (0, email_service_1.sendOtpEmail)(emailNormalized, otp);
-        return res.json({ message: "OTP sent" });
+        // await sendOtpEmail(emailNormalized, otp);
+        return res.json({ otp: otp, message: "OTP sent" });
     }
     catch (err) {
         console.error("===== ERROR START =====");
