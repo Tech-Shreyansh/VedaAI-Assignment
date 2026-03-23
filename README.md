@@ -7,7 +7,10 @@ An AI-powered platform that allows teachers to create structured question papers
 ## 🌐 Live Demo
 
 👉 Deployed Backend: https://your-backend-url.onrender.com
+
 👉 Frontend: https://veda-ai-assignment-six.vercel.app/
+
+👉 Demo Video: https://raw.githubusercontent.com/Tech-Shreyansh/VedaAI-Assignment/main/vedaai-frontend/public/Demo.mp4
 
 ---
 
