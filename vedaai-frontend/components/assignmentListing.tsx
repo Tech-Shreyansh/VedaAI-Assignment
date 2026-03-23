@@ -1,6 +1,6 @@
 'use client'
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
@@ -11,7 +11,7 @@ type Assignment = {
     topic: string;
     dueDate: string;
     createdAt: string;
-  };
+};
 interface Props {
     assignments: Assignment[],
     setAssignments: Dispatch<SetStateAction<Assignment[]>>
@@ -20,6 +20,16 @@ const AssignmentListing = (props: Props) => {
     const [visible, setVisible] = useState<boolean[]>(
         new Array(props.assignments.length).fill(false)
     );
+    const [filteredAssignments, setFilteredAssignments] = useState<Assignment[]>(props.assignments)
+    const [search, setSearch] = useState("");
+
+    useEffect(() => {
+        const filtered = props.assignments.filter((a: any) =>
+            a.topic.toLowerCase().includes(search.toLowerCase())
+        );
+        setFilteredAssignments(filtered)
+    }, [search])
+
 
     const toggleMenu = (index: number) => {
         setVisible((prev) =>
@@ -31,28 +41,28 @@ const AssignmentListing = (props: Props) => {
 
     const fetchData = async () => {
         try {
-          const userId = localStorage.getItem("userId");
-          const res = await api.get(`/assignments/?userId=${userId}`);
-          props.setAssignments(res.data.assignments);
+            const userId = localStorage.getItem("userId");
+            const res = await api.get(`/assignments/?userId=${userId}`);
+            props.setAssignments(res.data.assignments);
         } catch (err) {
-          console.log(err);
+            console.log(err);
         }
-      };
+    };
 
     const deleteAssignment = async (id: string) => {
-      const confirmDelete = window.confirm(
-        "Are you sure you want to delete this assignment?"
-      );
-    
-      if (!confirmDelete) return;
-    
-      try {
-        await api.delete(`/assignments/${id}`);
-        toast.success("Assignment deleted successfully 🗑️");
-        fetchData()
-      } catch (err: any) {
-        toast.error(err?.response?.data?.message || "Delete failed");
-      }
+        const confirmDelete = window.confirm(
+            "Are you sure you want to delete this assignment?"
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+            await api.delete(`/assignments/${id}`);
+            toast.success("Assignment deleted successfully 🗑️");
+            fetchData()
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || "Delete failed");
+        }
     };
     return <div className="my-8">
         <div className="flex items-center gap-4">
@@ -71,11 +81,11 @@ const AssignmentListing = (props: Props) => {
             </div>
             <div className="flex gap-2 rounded-full md:w-[30%] border-2 border-gray-200 p-2">
                 <Image className="" src={"/search.svg"} width={20} height={20} alt="search" />
-                <input className="focus:outline-none" placeholder="Search Assignment" />
+                <input onChange={(e) => setSearch(e.target.value)} className="focus:outline-none" placeholder="Search Assignment" />
             </div>
         </div>
         <div className="md:grid grid-cols-2 gap-4 space-y-4 md:space-y-0">
-            {props.assignments.map((assignment, index) => (
+            {filteredAssignments.map((assignment, index) => (
                 <div
                     key={assignment._id}
                     className="relative w-full bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition"
@@ -116,10 +126,10 @@ const AssignmentListing = (props: Props) => {
                     {/* Dropdown */}
                     {visible[index] && (
                         <div className="absolute top-10 right-4 bg-white shadow-lg p-3 rounded-lg w-40 text-sm z-10">
-                            <p onClick={()=>router.push(`assignments/view/${assignment._id}`)} className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded">
+                            <p onClick={() => router.push(`assignments/view/${assignment._id}`)} className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded">
                                 View Assignment
                             </p>
-                            <p onClick={()=>deleteAssignment(assignment._id)} className="cursor-pointer hover:bg-red-50 text-red-500 px-2 py-1 rounded">
+                            <p onClick={() => deleteAssignment(assignment._id)} className="cursor-pointer hover:bg-red-50 text-red-500 px-2 py-1 rounded">
                                 Delete
                             </p>
                         </div>

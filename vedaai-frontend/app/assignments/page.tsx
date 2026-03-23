@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 export default function DashboardPage() {
   const [assignments, setAssignments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
