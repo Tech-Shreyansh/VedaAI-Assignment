@@ -46,8 +46,17 @@ export const sendOtp = async (req: Request, res: Response) => {
 
     return res.json({ message: "OTP sent" });
   
-  } catch (err) {
-    return res.status(500).json({ message: "Server error" });
+  } catch (err: any) {
+    console.error("===== ERROR START =====");
+    console.error("Message:", err?.message);
+    console.error("Stack:", err?.stack);
+    console.error("Full Error:", err);
+    console.error("===== ERROR END =====");
+  
+    return res.status(500).json({
+      message: "Server error",
+      error: err?.message,
+    });
   }
 };
 

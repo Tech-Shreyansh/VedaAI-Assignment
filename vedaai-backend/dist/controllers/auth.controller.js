@@ -49,7 +49,15 @@ const sendOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.json({ message: "OTP sent" });
     }
     catch (err) {
-        return res.status(500).json({ message: "Server error" });
+        console.error("===== ERROR START =====");
+        console.error("Message:", err === null || err === void 0 ? void 0 : err.message);
+        console.error("Stack:", err === null || err === void 0 ? void 0 : err.stack);
+        console.error("Full Error:", err);
+        console.error("===== ERROR END =====");
+        return res.status(500).json({
+            message: "Server error",
+            error: err === null || err === void 0 ? void 0 : err.message,
+        });
     }
 });
 exports.sendOtp = sendOtp;
