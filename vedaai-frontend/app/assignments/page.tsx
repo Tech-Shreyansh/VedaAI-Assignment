@@ -13,7 +13,7 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         const userId = localStorage.getItem("userId");
-        const res = await api.get(`/assignments/get?userId=${userId}`);
+        const res = await api.get(`/assignments/?userId=${userId}`);
         setAssignments(res.data.assignments);
       } catch (err) {
         console.log(err);

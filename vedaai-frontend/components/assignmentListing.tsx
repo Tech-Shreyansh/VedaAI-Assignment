@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 type Assignment = {
     _id: string;
@@ -22,6 +23,8 @@ const AssignmentListing = (props: Props) => {
             prev.map((item, i) => (i === index ? !item : false))
         );
     };
+
+    const router = useRouter()
 
     return <div className="my-8">
         <div className="flex items-center gap-4">
@@ -85,7 +88,7 @@ const AssignmentListing = (props: Props) => {
                     {/* Dropdown */}
                     {visible[index] && (
                         <div className="absolute top-10 right-4 bg-white shadow-lg p-3 rounded-lg w-40 text-sm z-10">
-                            <p className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded">
+                            <p onClick={()=>router.push(`assignments/view/${assignment._id}`)} className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded">
                                 View Assignment
                             </p>
                             <p className="cursor-pointer hover:bg-red-50 text-red-500 px-2 py-1 rounded">

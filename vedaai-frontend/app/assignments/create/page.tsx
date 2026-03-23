@@ -21,6 +21,7 @@ export default function CreateAssignmentPage() {
     const [additionalInfo, setAdditionalInfo] = useState("");
     const [questionConfig, setQuestionConfig] = useState<Question[]>([]);
     const [loading, setLoading] = useState(false);
+    const [duration, setDuration] = useState<number>(0)
 
     const handleSubmit = async () => {
         try {
@@ -35,12 +36,13 @@ export default function CreateAssignmentPage() {
                 additional_info: additionalInfo,
                 question_config: questionConfig,
                 userId,
+                duration,
             };
 
-            await api.post("/assignments/create", payload);
+            const res = await api.post("/assignments/create", payload);
 
             alert("Assignment created!");
-            router.push("/assignments");
+            router.push(`/assignments/view/${res.data._id}`);
 
         } catch (err: any) {
             alert(err?.response?.data?.message || "Failed to create assignment");
@@ -71,7 +73,7 @@ export default function CreateAssignmentPage() {
 
                 {/* Date + Standard */}
                 <div className="grid md:grid-cols-2 gap-4">
-
+                    <label>Due Date</label>
                     <input
                         type="date"
                         value={dueDate}
@@ -79,6 +81,7 @@ export default function CreateAssignmentPage() {
                         className="border p-2 rounded-xl"
                     />
 
+                    <label>Class/Standard</label>
                     <select
                         value={standard}
                         onChange={(e) => setStandard(e.target.value)}
@@ -88,6 +91,13 @@ export default function CreateAssignmentPage() {
                             <option key={i}>{i + 1}</option>
                         ))}
                     </select>
+
+                    <label>Duration in hours</label>
+                    <input
+                        type="number"
+                        onChange={(e) => setDuration(parseInt(e.target.value))}
+                        className="border p-2 rounded-xl"
+                    />
                 </div>
 
                 {/* Topic */}

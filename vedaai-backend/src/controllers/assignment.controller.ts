@@ -12,13 +12,14 @@ export const createAssignment = async (req, res) => {
       additional_info,
       question_config,
       userId,
+      duration
     } = req.body;
 
     console.log(typeof question_config)
     // ✅ Basic validation
-    if (!topic || !standard || !question_config?.length) {
+    if (!topic || !standard || !question_config?.length || duration) {
       return res.status(422).json({
-        message: "Topic, standard and question config are required",
+        message: "Topic, standard, duration and question config are required",
       });
     }
 
@@ -42,7 +43,7 @@ export const createAssignment = async (req, res) => {
       - Include question text
       - Include difficulty (easy/medium/hard)
       - Include marks
-      Return structured JSON only where it has key sections which contain array as of oabjects as value. Each array element should have keys - section_name, is_mcq, questions. Now questions is also an array of elements where each element has keys - question, answer, difficulty-[easy/medium/hard], marks, options(in case of mcq and there should be exactly 4 options). Return this exact JSON only.
+      Return structured JSON only where it has key as sections which contain array as of objects as value. Each array element should have keys - section_name, is_mcq, questions. Now questions is also an array of elements where each element has keys - question, answer, difficulty-[easy/medium/hard], marks, options(in case of mcq and there should be exactly 4 options). Return this exact JSON format only as plain text. DO NOT wrap inside code block or markdown.
       `;
 
       if (typeof question_config === "string") {
@@ -53,6 +54,8 @@ export const createAssignment = async (req, res) => {
       topic,
       standard,
       dueDate,
+      duration,
+      totalMarks,
       question_config,
       additional_info,
       user: userId,
@@ -106,6 +109,22 @@ export const getAssignments = async (req, res) => {
       count: assignments.length,
       assignments,
     });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getAssignmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const assignment = await Assignment.findById(id);
+
+    if (!assignment) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+
+    return res.json({ assignment });
   } catch (err) {
     return res.status(500).json({ message: "Server error" });
   }

@@ -22,6 +22,14 @@ const AssignmentSchema = new mongoose.Schema(
       type: String,
     },
 
+    duration: {
+      type: Number,
+    },
+
+    total_marks: {
+      type: Number,
+    },
+
     question_config: [
       {
         type: {
