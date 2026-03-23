@@ -25,6 +25,7 @@ const transporter = nodemailer_1.default.createTransport({
     tls: {
         rejectUnauthorized: false,
     },
+    family: 4,
 });
 const sendOtpEmail = (email, otp) => __awaiter(void 0, void 0, void 0, function* () {
     yield transporter.sendMail({
