@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import api from "@/lib/axios";
+import toast from "react-hot-toast";
 
 type Assignment = {
     _id: string;
@@ -11,7 +13,8 @@ type Assignment = {
     createdAt: string;
   };
 interface Props {
-    assignments: Assignment[]
+    assignments: Assignment[],
+    setAssignments: Dispatch<SetStateAction<Assignment[]>>
 }
 const AssignmentListing = (props: Props) => {
     const [visible, setVisible] = useState<boolean[]>(
@@ -26,6 +29,31 @@ const AssignmentListing = (props: Props) => {
 
     const router = useRouter()
 
+    const fetchData = async () => {
+        try {
+          const userId = localStorage.getItem("userId");
+          const res = await api.get(`/assignments/?userId=${userId}`);
+          props.setAssignments(res.data.assignments);
+        } catch (err) {
+          console.log(err);
+        }
+      };
+
+    const deleteAssignment = async (id: string) => {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this assignment?"
+      );
+    
+      if (!confirmDelete) return;
+    
+      try {
+        await api.delete(`/assignments/${id}`);
+        toast.success("Assignment deleted successfully 🗑️");
+        fetchData()
+      } catch (err: any) {
+        toast.error(err?.response?.data?.message || "Delete failed");
+      }
+    };
     return <div className="my-8">
         <div className="flex items-center gap-4">
             <div className="flex justify-center items-center w-6 h-6 rounded-full bg-green-300 shadow-[0px_4px_4px_rgba(0,0,0,0.2)]">
@@ -91,7 +119,7 @@ const AssignmentListing = (props: Props) => {
                             <p onClick={()=>router.push(`assignments/view/${assignment._id}`)} className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded">
                                 View Assignment
                             </p>
-                            <p className="cursor-pointer hover:bg-red-50 text-red-500 px-2 py-1 rounded">
+                            <p onClick={()=>deleteAssignment(assignment._id)} className="cursor-pointer hover:bg-red-50 text-red-500 px-2 py-1 rounded">
                                 Delete
                             </p>
                         </div>

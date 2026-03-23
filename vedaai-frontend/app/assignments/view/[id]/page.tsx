@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import api from "@/lib/axios";
+import FullScreenLoader from "@/components/screenLoader";
 
 /* ================= TYPES ================= */
 
@@ -39,6 +40,7 @@ export default function AssignmentDetailPage() {
 
     const [assignment, setAssignment] = useState<Assignment | null>(null);
     const [loading, setLoading] = useState(true);
+    const [regenrating, setRegenrating] = useState(false);
     const [showAnswers, setShowAnswers] = useState(false);
 
     const pdfRef = useRef<HTMLDivElement | null>(null);
@@ -139,14 +141,13 @@ export default function AssignmentDetailPage() {
 
     /* ================= Regenrate Paper ================= */
     const regenerate = async () => {
-        setLoading(true)
         try {
             const res = await api.patch(`/assignments/${id}`);
             setAssignment(res.data.assignmentNew);
         } catch (err) {
             console.error(err);
         } finally {
-            setLoading(false);
+            setRegenrating(false);
         }
     }
 
@@ -173,9 +174,16 @@ export default function AssignmentDetailPage() {
 
                 <button
                     onClick={() => setShowAnswers(!showAnswers)}
-                    className="cursor-pointer px-4 py-2 border border-gray-300 rounded-full text-sm"
+                    className="hidden md:block cursor-pointer px-4 py-2 border border-gray-300 rounded-full text-sm"
                 >
                     {showAnswers ? "Hide Answers" : "Show Answers"}
+                </button>
+
+                <button
+                    onClick={()=>{setRegenrating(true),regenerate()}}
+                    className="hidden md:block cursor-pointer px-4 py-2 bg-black text-white rounded-full text-sm"
+                >
+                    Regenerate
                 </button>
             </div>
 
@@ -275,7 +283,7 @@ export default function AssignmentDetailPage() {
             </div>
 
             {/* ===== ACTION BAR ===== */}
-            <div className="flex gap-3 my-6 justify-center flex-wrap">
+            <div className="flex gap-3 my-6 mb-24 justify-center flex-wrap">
                 <button
                     onClick={() => downloadPDF(false)}
                     className="cursor-pointer px-4 py-2 bg-black text-white rounded-full text-sm"
@@ -298,12 +306,18 @@ export default function AssignmentDetailPage() {
                 </button>
 
                 <button
-                    onClick={regenerate}
+                    onClick={()=>{setRegenrating(true),regenerate()}}
                     className="cursor-pointer px-4 py-2 bg-black text-white rounded-full text-sm"
                 >
                     Regenerate
                 </button>
             </div>
+
+            {/* LOADER */}
+            <FullScreenLoader
+                show={regenrating}
+                text="Regenerating assignment... please wait ⏳"
+            />
         </div>
     );
 }

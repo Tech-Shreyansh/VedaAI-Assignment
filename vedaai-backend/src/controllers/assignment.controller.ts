@@ -204,3 +204,27 @@ export const regenerateAssignment = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+export const deleteAssignmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deleted = await Assignment.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({
+        message: "Assignment not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Assignment deleted successfully",
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};

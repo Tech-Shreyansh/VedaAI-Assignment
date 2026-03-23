@@ -24,13 +24,13 @@ export default function Navbar() {
 
       {/* Right */}
       <div className="flex items-center gap-4">
-        <Image className="cursor-pointer" src={"bellIcon.svg"} width={20} height={20} alt="notification" />
+        <Image className="cursor-pointer" src={"/bellIcon.svg"} width={20} height={20} alt="notification" />
         <div className="flex items-center gap-2">
-          <Image src={"avatar.svg"} width={30} height={30} alt="avatar" />
+          <Image src={"/avatar.svg"} width={30} height={30} alt="avatar" />
           <span className="hidden md:block ">John Doe</span>
-          <Image className="md:hidden" src={"hamburger.svg"} width={30} height={30} alt="avatar" />
+          <Image className="md:hidden" src={"/hamburger.svg"} width={30} height={30} alt="avatar" />
         </div>
-        <Image className="hidden md:block cursor-pointer" src={"downArrow.svg"} width={15} height={15} alt="expand" />
+        <Image className="hidden md:block cursor-pointer" src={"/downArrow.svg"} width={15} height={15} alt="expand" />
       </div>
     </div>
   );

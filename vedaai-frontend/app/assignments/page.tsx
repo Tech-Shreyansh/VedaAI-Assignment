@@ -30,7 +30,7 @@ export default function DashboardPage() {
   return (
     <div className="px-4">
       {assignments.length > 0 ? (
-        <AssignmentListing assignments={assignments} />
+        <AssignmentListing assignments={assignments} setAssignments = {setAssignments} />
       ) : (
         <EmptyState />
       )}

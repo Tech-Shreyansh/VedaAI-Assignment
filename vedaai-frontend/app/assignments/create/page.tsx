@@ -6,6 +6,7 @@ import { useState } from "react";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "react-hot-toast";
+import FullScreenLoader from "@/components/screenLoader";
 
 type Question = {
     type: string;
@@ -184,6 +185,14 @@ export default function CreateAssignmentPage() {
                     {loading ? "Generating..." : "⚡ Generate"}
                 </button>
             </div>
+
+            {/* LOADER */}
+            <FullScreenLoader
+                show={loading}
+                text="Generating assignment... please wait ⏳"
+            />
+            
+            {/* TOASTER */}
             <Toaster position="top-center" />
         </div>
     );
