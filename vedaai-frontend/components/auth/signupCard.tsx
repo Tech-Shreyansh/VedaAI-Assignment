@@ -1,9 +1,9 @@
 "use client";
 
 import { Dispatch, SetStateAction, useState } from "react";
-import axios from "axios";
 import Image from "next/image";
 import api from "@/lib/axios";
+import {Toaster, toast} from "react-hot-toast";
 
 interface Props {
     setIsOtpSent : Dispatch<SetStateAction<boolean>>;
@@ -23,11 +23,10 @@ const SignupPageCard = (props : Props) => {
     if (password !== confirm) {
       return alert("Passwords do not match");
     }
-    var res;
     try {
       setLoading(true);
 
-      res = await api.post(
+      await api.post(
         "/auth/send-otp",
         { email, type:"signup" }
       );
@@ -36,8 +35,8 @@ const SignupPageCard = (props : Props) => {
       localStorage.setItem("password", password);
       localStorage.setItem("flow", "signup");
       props.setIsOtpSent(true)
-    } catch {
-      alert(res?.data.message);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -131,6 +130,7 @@ const SignupPageCard = (props : Props) => {
           Login
         </span>
       </p>
+      <Toaster position="top-center" />
     </div>
   );
 };
